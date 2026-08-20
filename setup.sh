@@ -65,7 +65,7 @@ fi
 apt-get update -y
 info "Installation de Nginx, PHP 8.3, MariaDB, Redis..."
 apt-get install -y nginx mariadb-server redis-server \
-    php8.3 php8.3-{cli,fpm,gd,mysql,mbstring,bcmath,xml,curl,zip,intl,tokenizer,common,readline}
+    php8.3 php8.3-{cli,fpm,gd,mysql,mbstring,bcmath,xml,curl,zip,intl,tokenizer,common,readline,redis}
 
 systemctl enable --now nginx mariadb redis-server php8.3-fpm
 
