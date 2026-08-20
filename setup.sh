@@ -115,7 +115,8 @@ sed -i "s|DB_HOST=.*|DB_HOST=127.0.0.1|" .env
 
 php artisan key:generate --force
 php artisan storage:link
-php artisan migrate --force --seed
+php artisan migrate --force
+php artisan db:seed --force || warn "Seeder déjà exécuté ou avertissement ignoré."
 
 chown -R www-data:www-data /var/www/paymenter
 
@@ -258,13 +259,13 @@ certbot --nginx --non-interactive --agree-tos --redirect \
 # ---------------------------------------------------------------------------
 info "Création du compte administrateur Paymenter..."
 cd /var/www/paymenter
-php artisan p:user:create \
+php artisan app:user:create \
+    --name="$ADMIN_FIRSTNAME $ADMIN_LASTNAME" \
     --email="$ADMIN_EMAIL" \
-    --first-name="$ADMIN_FIRSTNAME" \
-    --last-name="$ADMIN_LASTNAME" \
     --password="$ADMIN_PASS" \
-    --admin=1 --no-interaction || \
-    warn "Échec création admin. Créez-le manuellement : php artisan p:user:create"
+    --admin --no-interaction 2>/dev/null \
+  || php artisan app:user --no-interaction 2>/dev/null \
+  || warn "Créez l'admin manuellement : php artisan app:user"
 
 # ---------------------------------------------------------------------------
 # Récapitulatif
