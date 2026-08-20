@@ -30,18 +30,15 @@ echo "  Installation Paymenter + Site vitrine"
 echo "=============================================="
 read -rp "Domaine du Paymenter (ex: billing.exemple.fr)  : " PAYMENTER_DOMAIN
 read -rp "Domaine du site vitrine (ex: exemple.fr)       : " VITRINE_DOMAIN
-echo "--- Compte administrateur Paymenter ---"
-read -rp "Email admin (connexion + SSL)                  : " ADMIN_EMAIL
-read -rp "Prénom admin                                   : " ADMIN_FIRSTNAME
-read -rp "Nom admin                                      : " ADMIN_LASTNAME
-read -rsp "Mot de passe admin Paymenter                 : " ADMIN_PASS; echo
+read -rp "Email (certificats SSL Let's Encrypt)          : " ADMIN_EMAIL
 echo "--- Accès FTP site vitrine ---"
 read -rp "Utilisateur FTP pour le site vitrine           : " FTP_USER
 read -rsp "Mot de passe FTP                              : " FTP_PASS; echo
 read -rsp "Mot de passe root MySQL à définir             : " MYSQL_ROOT_PASS; echo
+echo
+echo "Le compte administrateur Paymenter sera créé à la fin de l'installation."
 
 [[ -n "$PAYMENTER_DOMAIN" && -n "$VITRINE_DOMAIN" && -n "$ADMIN_EMAIL" \
-   && -n "$ADMIN_FIRSTNAME" && -n "$ADMIN_LASTNAME" && -n "$ADMIN_PASS" \
    && -n "$FTP_USER" && -n "$FTP_PASS" && -n "$MYSQL_ROOT_PASS" ]] \
    || error "Tous les champs sont obligatoires."
 
@@ -259,13 +256,9 @@ certbot --nginx --non-interactive --agree-tos --redirect \
 # ---------------------------------------------------------------------------
 info "Création du compte administrateur Paymenter..."
 cd /var/www/paymenter
-php artisan app:user:create \
-    --name="$ADMIN_FIRSTNAME $ADMIN_LASTNAME" \
-    --email="$ADMIN_EMAIL" \
-    --password="$ADMIN_PASS" \
-    --admin --no-interaction 2>/dev/null \
-  || php artisan app:user --no-interaction 2>/dev/null \
-  || warn "Créez l'admin manuellement : php artisan app:user"
+echo "-> Renseignez les informations de l'administrateur Paymenter :"
+php artisan app:user:create || \
+    warn "Créez l'admin plus tard avec : cd /var/www/paymenter && php artisan app:user:create"
 
 # ---------------------------------------------------------------------------
 # Récapitulatif
@@ -274,7 +267,7 @@ echo
 echo "=============================================="
 echo -e "${GREEN}  Installation terminée${NC}"
 echo "=============================================="
-echo "Paymenter      : https://${PAYMENTER_DOMAIN}/admin (login: ${ADMIN_EMAIL})"
+echo "Paymenter      : https://${PAYMENTER_DOMAIN}/admin"
 echo "Site vitrine   : https://${VITRINE_DOMAIN}"
 echo "Dossier site   : ${VITRINE_ROOT}"
 echo "FTP host       : ${VITRINE_DOMAIN} (port 21, FTP explicite/TLS)"
