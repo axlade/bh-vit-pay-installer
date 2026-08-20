@@ -19,6 +19,9 @@ error() { echo -e "${RED}[x]${NC} $1"; exit 1; }
 
 [[ $EUID -eq 0 ]] || error "Ce script doit être lancé en root."
 
+# Se placer dans un dossier sûr (évite getcwd() failed si lancé depuis un dossier supprimé)
+cd /root 2>/dev/null || cd /
+
 # ---------------------------------------------------------------------------
 # Saisie utilisateur
 # ---------------------------------------------------------------------------
@@ -52,7 +55,8 @@ info "Mise à jour du système et installation des dépendances..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y software-properties-common curl wget gnupg2 ca-certificates \
-    lsb-release apt-transport-https unzip git tar vsftpd
+    lsb-release apt-transport-https unzip git tar vsftpd cron
+systemctl enable --now cron
 
 # Dépôt PHP (Sury)
 if ! grep -rq "packages.sury.org" /etc/apt/sources.list.d/ 2>/dev/null; then
